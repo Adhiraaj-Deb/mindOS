@@ -2,6 +2,14 @@
 ui/graph_view.py — Interactive knowledge graph using QGraphicsScene.
 Nodes = vault .md files  |  Edges = [[wikilink]] relationships
 Features: zoom, pan, draggable nodes, glowing colours per folder.
+
+Performance notes:
+  - No QGraphicsDropShadowEffect (causes full repaint on every drag tick).
+    Glow is painted directly inside NodeItem.paint() using radial gradients.
+  - DeviceCoordinateCache caches each node as a pixmap; undragged nodes
+    are never re-rasterised during a drag.
+  - FullViewportUpdate avoids the expensive dirty-region recalculation that
+    SmartViewportUpdate does on every mouse-move.
 """
 import os
 import re
@@ -12,12 +20,11 @@ from PyQt6.QtWidgets import (
     QWidget, QVBoxLayout, QLabel, QHBoxLayout,
     QGraphicsView, QGraphicsScene, QGraphicsEllipseItem,
     QGraphicsLineItem, QGraphicsTextItem, QGraphicsItem,
-    QGraphicsDropShadowEffect,
 )
 from PyQt6.QtCore import Qt, QPointF, QRectF
 from PyQt6.QtGui import (
     QColor, QPen, QBrush, QPainter, QFont,
-    QLinearGradient, QRadialGradient, QTransform, QWheelEvent,
+    QRadialGradient, QTransform, QWheelEvent,
 )
 
 from core.file_utils import get_all_md_files, VAULT_PATH
@@ -40,14 +47,22 @@ DEFAULT_COLOR = "#0071e3"
 
 # ── Node item ─────────────────────────────────────────────────────────────────
 class NodeItem(QGraphicsEllipseItem):
+    """
+    Custom node that paints its own glow via a radial gradient instead of
+    relying on QGraphicsDropShadowEffect (which triggers a full-scene repaint
+    on every single drag tick and is the primary source of drag lag).
+    """
     def __init__(self, name: str, color: str, size: float = 18):
-        r = size / 2
-        super().__init__(-r, -r, size, size)
+        self._r    = size / 2
+        self._color = QColor(color)
+        # bounding rect is the glow halo (3× the node radius)
+        halo = self._r * 3
+        super().__init__(-halo, -halo, halo * 2, halo * 2)
         self.node_name = name
         self.edges: list["EdgeItem"] = []
 
-        # Appearance
-        self.setBrush(QBrush(QColor(color)))
+        # No fill/border on the ellipse itself — we paint everything manually
+        self.setBrush(Qt.BrushStyle.NoBrush)
         self.setPen(QPen(Qt.PenStyle.NoPen))
 
         # Interaction flags
@@ -56,20 +71,55 @@ class NodeItem(QGraphicsEllipseItem):
         self.setFlag(QGraphicsItem.GraphicsItemFlag.ItemSendsGeometryChanges)
         self.setAcceptHoverEvents(True)
 
-        # Glow effect
-        glow = QGraphicsDropShadowEffect()
-        glow.setBlurRadius(22)
-        glow.setColor(QColor(color))
-        glow.setOffset(0, 0)
-        self.setGraphicsEffect(glow)
+        # Cache node as a device-pixel pixmap — only the dragged node repaints
+        self.setCacheMode(QGraphicsItem.CacheMode.DeviceCoordinateCache)
 
-        # Label
+        # Collision uses bounding rect (cheaper than shape())
+        self.setFlag(QGraphicsItem.GraphicsItemFlag.ItemClipsToShape, False)
+
+        # Label (child item — moves automatically with the node)
         self._label = QGraphicsTextItem(name, self)
         font = QFont("Inter", 8)
         self._label.setFont(font)
         self._label.setDefaultTextColor(QColor(255, 255, 255, 160))
         lw = self._label.boundingRect().width()
-        self._label.setPos(-lw / 2, r + 3)
+        self._label.setPos(-lw / 2, self._r + 3)
+        # Cache the label too
+        self._label.setCacheMode(QGraphicsItem.CacheMode.DeviceCoordinateCache)
+
+        self._hovered = False
+
+    # ── Custom paint: radial glow + solid disc ────────────────────────────────
+    def paint(self, painter: QPainter, option, widget=None):
+        painter.setRenderHint(QPainter.RenderHint.Antialiasing)
+
+        r    = self._r * (1.25 if self._hovered else 1.0)
+        halo = r * 3
+
+        # Glow — radial gradient fading to transparent
+        grad = QRadialGradient(0, 0, halo)
+        glow_color = QColor(self._color)
+        glow_color.setAlpha(90 if self._hovered else 60)
+        grad.setColorAt(0.0, glow_color)
+        grad.setColorAt(0.4, QColor(self._color.red(),
+                                    self._color.green(),
+                                    self._color.blue(), 25))
+        grad.setColorAt(1.0, QColor(0, 0, 0, 0))
+        painter.setBrush(QBrush(grad))
+        painter.setPen(Qt.PenStyle.NoPen)
+        painter.drawEllipse(QRectF(-halo, -halo, halo * 2, halo * 2))
+
+        # Solid node disc
+        disc_color = QColor(self._color)
+        if self._hovered:
+            disc_color = disc_color.lighter(130)
+        painter.setBrush(QBrush(disc_color))
+        painter.setPen(Qt.PenStyle.NoPen)
+        painter.drawEllipse(QRectF(-r, -r, r * 2, r * 2))
+
+    def boundingRect(self) -> QRectF:
+        halo = self._r * 3 * 1.3   # small safety margin
+        return QRectF(-halo, -halo, halo * 2, halo * 2)
 
     def itemChange(self, change, value):
         if change == QGraphicsItem.GraphicsItemChange.ItemPositionHasChanged:
@@ -78,13 +128,15 @@ class NodeItem(QGraphicsEllipseItem):
         return super().itemChange(change, value)
 
     def hoverEnterEvent(self, event):
-        self.setScale(1.25)
+        self._hovered = True
         self._label.setDefaultTextColor(QColor(255, 255, 255, 230))
+        self.update()
         super().hoverEnterEvent(event)
 
     def hoverLeaveEvent(self, event):
-        self.setScale(1.0)
+        self._hovered = False
         self._label.setDefaultTextColor(QColor(255, 255, 255, 160))
+        self.update()
         super().hoverLeaveEvent(event)
 
 
@@ -119,8 +171,12 @@ class GraphicsView(QGraphicsView):
         super().__init__(scene)
         self.setRenderHint(QPainter.RenderHint.Antialiasing)
         self.setRenderHint(QPainter.RenderHint.SmoothPixmapTransform)
+        # FullViewportUpdate avoids the O(n) dirty-region scan that
+        # SmartViewportUpdate performs on every mouse-move event.
+        # With DeviceCoordinateCache on nodes the actual repaint cost
+        # is still minimal — only the moved node and its edges repaint.
         self.setViewportUpdateMode(
-            QGraphicsView.ViewportUpdateMode.SmartViewportUpdate)
+            QGraphicsView.ViewportUpdateMode.FullViewportUpdate)
         self.setBackgroundBrush(QBrush(QColor("#000000")))
         self.setTransformationAnchor(
             QGraphicsView.ViewportAnchor.AnchorUnderMouse)
@@ -129,6 +185,9 @@ class GraphicsView(QGraphicsView):
         self.setDragMode(QGraphicsView.DragMode.NoDrag)
         self.setHorizontalScrollBarPolicy(Qt.ScrollBarPolicy.ScrollBarAlwaysOff)
         self.setVerticalScrollBarPolicy(Qt.ScrollBarPolicy.ScrollBarAlwaysOff)
+        # Optimise hit-testing — bounding rect check before shape check
+        self.setOptimizationFlag(
+            QGraphicsView.OptimizationFlag.DontAdjustForAntialiasing, True)
 
         self._panning = False
         self._pan_start = QPointF()
