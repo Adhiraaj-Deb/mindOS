@@ -54,5 +54,19 @@ MindOS organizes your digital life into a structured hierarchy:
     ```
 4.  Interact via the PyQt6 dashboard to chat with your vault in real-time.
 
+
 ---
+
+## 📄 License & Attribution
+
+MindOS is open-source software licensed under the **MIT License**.
+
+### Give Credit Where It's Due
+While you are free to use, modify, and distribute this software, it would be greatly appreciated if you gave a mention or link back to the original repository. 
+
+If you use MindOS in a project or build something on top of it, please attribute it to:
+**Adhiraaj Deb** ([@Adhiraaj-Deb](https://github.com/Adhiraaj-Deb))
+
+---
+
 *Built for privacy. Powered by local intelligence.*
