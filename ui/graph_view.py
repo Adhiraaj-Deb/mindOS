@@ -62,7 +62,7 @@ class NodeItem(QGraphicsEllipseItem):
         self.edges: list["EdgeItem"] = []
 
         # No fill/border on the ellipse itself — we paint everything manually
-        self.setBrush(Qt.BrushStyle.NoBrush)
+        self.setBrush(QBrush(Qt.BrushStyle.NoBrush))
         self.setPen(QPen(Qt.PenStyle.NoPen))
 
         # Interaction flags
