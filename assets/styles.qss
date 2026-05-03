@@ -1,0 +1,293 @@
+/* ═══════════════════════════════════════════════════════
+   MindOS — Qt Style Sheet (Apple Dark Design System)
+   ═══════════════════════════════════════════════════════ */
+
+/* ── Root ── */
+QMainWindow, QDialog {
+    background-color: #000000;
+    color: #ffffff;
+}
+
+QWidget {
+    background-color: transparent;
+    color: #ffffff;
+    font-family: "Inter", "Segoe UI", "Helvetica Neue", Arial, sans-serif;
+    font-size: 14px;
+    selection-background-color: #0071e3;
+    selection-color: #ffffff;
+}
+
+/* ── Scroll bars ── */
+QScrollBar:vertical {
+    background: transparent;
+    width: 5px;
+    margin: 0;
+}
+QScrollBar::handle:vertical {
+    background: rgba(255,255,255,0.15);
+    border-radius: 2px;
+    min-height: 30px;
+}
+QScrollBar::handle:vertical:hover { background: rgba(255,255,255,0.28); }
+QScrollBar::add-line:vertical, QScrollBar::sub-line:vertical { height: 0; }
+QScrollBar::add-page:vertical, QScrollBar::sub-page:vertical { background: transparent; }
+
+QScrollBar:horizontal {
+    background: transparent;
+    height: 5px;
+    margin: 0;
+}
+QScrollBar::handle:horizontal {
+    background: rgba(255,255,255,0.15);
+    border-radius: 2px;
+    min-width: 30px;
+}
+QScrollBar::handle:horizontal:hover { background: rgba(255,255,255,0.28); }
+QScrollBar::add-line:horizontal, QScrollBar::sub-line:horizontal { width: 0; }
+
+/* ── Nav bar ── */
+#navBar {
+    background-color: rgba(10, 10, 10, 0.95);
+    border-bottom: 1px solid rgba(255,255,255,0.07);
+    min-height: 52px;
+    max-height: 52px;
+}
+
+#navLogo {
+    color: #ffffff;
+    font-size: 15px;
+    font-weight: 600;
+    background: transparent;
+    padding: 0 8px;
+    letter-spacing: -0.3px;
+}
+
+#statusDot {
+    background: transparent;
+    font-size: 11px;
+    color: rgba(255,255,255,0.35);
+}
+
+/* ── Nav buttons ── */
+QPushButton[nav="true"] {
+    background: transparent;
+    color: rgba(255,255,255,0.5);
+    border: none;
+    border-radius: 7px;
+    padding: 6px 14px;
+    font-size: 13px;
+    font-weight: 400;
+    letter-spacing: -0.1px;
+}
+QPushButton[nav="true"]:hover {
+    background: rgba(255,255,255,0.07);
+    color: rgba(255,255,255,0.9);
+}
+QPushButton[nav="true"][active="true"] {
+    background: rgba(255,255,255,0.1);
+    color: #ffffff;
+    font-weight: 500;
+}
+
+/* ── Primary action button ── */
+QPushButton[action="primary"] {
+    background-color: #0071e3;
+    color: #ffffff;
+    border: none;
+    border-radius: 980px;
+    padding: 9px 22px;
+    font-size: 14px;
+    font-weight: 500;
+    letter-spacing: -0.1px;
+}
+QPushButton[action="primary"]:hover { background-color: #0077ed; }
+QPushButton[action="primary"]:pressed { background-color: #005ec4; }
+QPushButton[action="primary"]:disabled { background-color: rgba(0,113,227,0.35); }
+
+/* ── Ghost button ── */
+QPushButton[action="ghost"] {
+    background-color: rgba(255,255,255,0.07);
+    color: rgba(255,255,255,0.72);
+    border: none;
+    border-radius: 980px;
+    padding: 9px 22px;
+    font-size: 14px;
+    font-weight: 400;
+}
+QPushButton[action="ghost"]:hover {
+    background-color: rgba(255,255,255,0.12);
+    color: #ffffff;
+}
+
+/* ── Text inputs ── */
+QLineEdit {
+    background-color: rgba(255,255,255,0.05);
+    border: 1.5px solid rgba(255,255,255,0.1);
+    border-radius: 12px;
+    color: #ffffff;
+    padding: 12px 18px;
+    font-size: 15px;
+    selection-background-color: #0071e3;
+}
+QLineEdit:focus {
+    border-color: #0071e3;
+    background-color: rgba(255,255,255,0.065);
+}
+QLineEdit::placeholder { color: rgba(255,255,255,0.28); }
+
+QTextEdit, QPlainTextEdit {
+    background-color: rgba(255,255,255,0.04);
+    border: 1.5px solid rgba(255,255,255,0.08);
+    border-radius: 14px;
+    color: rgba(255,255,255,0.88);
+    padding: 14px 18px;
+    font-size: 14px;
+    line-height: 1.6;
+    selection-background-color: #0071e3;
+}
+QTextEdit:focus, QPlainTextEdit:focus {
+    border-color: rgba(0,113,227,0.6);
+}
+
+/* ── Cards ── */
+QFrame[card="true"] {
+    background-color: #0d0d0d;
+    border: 1px solid rgba(255,255,255,0.07);
+    border-radius: 16px;
+}
+QFrame[card="dark"] {
+    background-color: #080808;
+    border: 1px solid rgba(255,255,255,0.055);
+    border-radius: 16px;
+}
+
+/* ── Section labels ── */
+QLabel[role="eyebrow"] {
+    color: rgba(255,255,255,0.28);
+    font-size: 10px;
+    font-weight: 600;
+    letter-spacing: 0.1em;
+    text-transform: uppercase;
+    background: transparent;
+}
+
+QLabel[role="hero"] {
+    color: #ffffff;
+    font-size: 40px;
+    font-weight: 700;
+    letter-spacing: -1.5px;
+    line-height: 1.06;
+    background: transparent;
+}
+
+QLabel[role="hero-accent"] {
+    color: #0071e3;
+    font-size: 40px;
+    font-weight: 700;
+    letter-spacing: -1.5px;
+    background: transparent;
+}
+
+QLabel[role="sub"] {
+    color: rgba(255,255,255,0.4);
+    font-size: 15px;
+    font-weight: 300;
+    letter-spacing: -0.15px;
+    background: transparent;
+}
+
+QLabel[role="card-head"] {
+    color: rgba(255,255,255,0.3);
+    font-size: 10px;
+    font-weight: 600;
+    letter-spacing: 0.1em;
+    text-transform: uppercase;
+    background: transparent;
+}
+
+QLabel[role="body"] {
+    color: rgba(255,255,255,0.82);
+    font-size: 14px;
+    background: transparent;
+    line-height: 1.55;
+}
+
+/* ── Task items ── */
+QFrame[role="task-item"] {
+    background: transparent;
+    border: none;
+    border-bottom: 1px solid rgba(255,255,255,0.055);
+    border-radius: 0;
+}
+
+/* ── Scrollable list area ── */
+QScrollArea {
+    background: transparent;
+    border: none;
+}
+QScrollArea > QWidget > QWidget {
+    background: transparent;
+}
+
+/* ── Separator ── */
+QFrame[role="separator"] {
+    background-color: rgba(255,255,255,0.07);
+    border: none;
+    max-height: 1px;
+    min-height: 1px;
+}
+
+/* ── Chat bubbles ── */
+QLabel[role="bubble-user"] {
+    background-color: #0071e3;
+    color: #ffffff;
+    border-radius: 16px;
+    padding: 10px 16px;
+    font-size: 14px;
+    line-height: 1.5;
+}
+
+QLabel[role="bubble-ai"] {
+    background-color: #141414;
+    color: rgba(255,255,255,0.88);
+    border: 1px solid rgba(255,255,255,0.07);
+    border-radius: 16px;
+    padding: 12px 16px;
+    font-size: 14px;
+    line-height: 1.65;
+}
+
+/* ── Metric value ── */
+QLabel[role="metric-val"] {
+    color: #ffffff;
+    font-size: 28px;
+    font-weight: 700;
+    letter-spacing: -1px;
+    background: transparent;
+}
+QLabel[role="metric-lbl"] {
+    color: rgba(255,255,255,0.3);
+    font-size: 10px;
+    font-weight: 500;
+    letter-spacing: 0.06em;
+    text-transform: uppercase;
+    background: transparent;
+}
+
+/* ── Page title ── */
+QLabel[role="page-title"] {
+    color: #ffffff;
+    font-size: 34px;
+    font-weight: 700;
+    letter-spacing: -1.2px;
+    background: transparent;
+}
+
+/* ── Idea / memory text ── */
+QLabel[role="idea-text"] {
+    color: rgba(255,255,255,0.78);
+    font-size: 14px;
+    letter-spacing: -0.1px;
+    background: transparent;
+    padding: 2px 0;
+}

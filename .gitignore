@@ -1,0 +1,68 @@
+# ══════════════════════════════════════════════════════════════════
+#  MindOS — .gitignore
+#  Everything below is either private personal data, local machine
+#  state, or generated build artefacts. None of it belongs on GitHub.
+# ══════════════════════════════════════════════════════════════════
+
+# ── Secrets & environment ─────────────────────────────────────────
+.env
+.env.*
+!.env.example
+
+# ── Personal vault content (private notes) ────────────────────────
+01_Daily/
+02_Tasks/
+03_Projects/
+04_Knowledge/
+05_Ideas/
+06_People/
+07_Memory/
+08_Reminders/
+09_World_Knowledge/
+10_Gemini_Memory/
+Chats/
+
+# Keep the directory skeletons (template files inside are committed
+# only if they contain no personal data — see vault_templates/).
+
+# ── Local AI / vector DB state ────────────────────────────────────
+chroma_db/
+
+# ── Scratch / test files ──────────────────────────────────────────
+test.txt
+test2.py
+test3.py
+test4.py
+test5.py
+test_gem.py
+test_parser.py
+Untitled.md
+
+# ── Python artefacts ──────────────────────────────────────────────
+__pycache__/
+*.py[cod]
+*$py.class
+*.so
+*.egg
+*.egg-info/
+dist/
+build/
+.eggs/
+.mypy_cache/
+.pytest_cache/
+.ruff_cache/
+
+# ── Virtual environment ───────────────────────────────────────────
+.venv/
+venv/
+env/
+ENV/
+
+# ── Obsidian workspace state (machine-specific) ───────────────────
+.obsidian/workspace.json
+.obsidian/workspace-mobile.json
+
+# ── OS noise ──────────────────────────────────────────────────────
+.DS_Store
+Thumbs.db
+desktop.ini
